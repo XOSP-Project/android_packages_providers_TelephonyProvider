@@ -1457,7 +1457,16 @@ public class MmsSmsDatabaseHelper extends SQLiteOpenHelper {
             if (currentVersion <= 64) {
                 return;
             }
-            // Unread count as a feature is dropped
+            db.beginTransaction();
+            try {
+                upgradeDatabaseToVersion65(db);
+                db.setTransactionSuccessful();
+            } catch (Throwable ex) {
+                Log.e(TAG, ex.getMessage(), ex);
+                break;
+            } finally {
+                db.endTransaction();
+            }
             // fall through
         case 65:
             if (currentVersion <= 65) {
@@ -1492,22 +1501,6 @@ public class MmsSmsDatabaseHelper extends SQLiteOpenHelper {
             } finally {
                 db.endTransaction();
             }
-            // fall through
-         case 64:
-            if (currentVersion <= 64) {
-                return;
-            }
-            db.beginTransaction();
-            try {
-                upgradeDatabaseToVersion65(db);
-                db.setTransactionSuccessful();
-            } catch (Throwable ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-                break;
-            } finally {
-                db.endTransaction();
-            }
-
             return;
         }
 
