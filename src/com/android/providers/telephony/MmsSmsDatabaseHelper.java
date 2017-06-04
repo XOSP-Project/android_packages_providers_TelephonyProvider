@@ -189,7 +189,7 @@ public class MmsSmsDatabaseHelper extends SQLiteOpenHelper {
     private static final String NO_SUCH_TABLE_EXCEPTION_MESSAGE = "no such table";
 
     static final String DATABASE_NAME = "mmssms.db";
-    static final int DATABASE_VERSION = 67;
+    static final int DATABASE_VERSION = 68;
     private final Context mContext;
     private LowStorageMonitor mLowStorageMonitor;
 
@@ -1457,16 +1457,7 @@ public class MmsSmsDatabaseHelper extends SQLiteOpenHelper {
             if (currentVersion <= 64) {
                 return;
             }
-            db.beginTransaction();
-            try {
-                upgradeDatabaseToVersion65(db);
-                db.setTransactionSuccessful();
-            } catch (Throwable ex) {
-                Log.e(TAG, ex.getMessage(), ex);
-                break;
-            } finally {
-                db.endTransaction();
-            }
+            // Unread count as a feature is dropped
             // fall through
         case 65:
             if (currentVersion <= 65) {
@@ -1501,6 +1492,22 @@ public class MmsSmsDatabaseHelper extends SQLiteOpenHelper {
             } finally {
                 db.endTransaction();
             }
+            // fall through
+         case 67:
+            if (currentVersion <= 67) {
+                return;
+            }
+            db.beginTransaction();
+            try {
+                upgradeDatabaseToVersion68(db);
+                db.setTransactionSuccessful();
+            } catch (Throwable ex) {
+                Log.e(TAG, ex.getMessage(), ex);
+                break;
+            } finally {
+                db.endTransaction();
+            }
+
             return;
         }
 
@@ -1904,7 +1911,7 @@ public class MmsSmsDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    private void upgradeDatabaseToVersion65(SQLiteDatabase db) {
+    private void upgradeDatabaseToVersion68(SQLiteDatabase db) {
         db.execSQL("ALTER TABLE " + SmsProvider.TABLE_RAW + " ADD COLUMN display_originating_addr TEXT");
     }
 
